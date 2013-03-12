@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<cinder>
+<block
+	name="GlslProgHelper"
+	id="simongeilfus.glslproghelper"
+	author="Simon Geilfus"
+	summary="Add includes and defines to GlslProg."
+	git="git://github.com/simongeilfus/Cinder-GlslProgHelper.git"
+	>
+	<header>src/GlslProgHelper.h</header>
+	<source>src/GlslProgHelper.cpp</source>
+	<copyExclude>samples</copyExclude>
+</block>
+</cinder>

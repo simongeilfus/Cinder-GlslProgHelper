@@ -31,15 +31,16 @@ gl::GlslProg GlslProgHelper::create( const char *vertexShader, const char *fragm
     }
     
     if( vertexShader )
-        vertex      << preprocessIncludes( vertexShader );
+        vertex      << vertexShader;
     
     if( fragmentShader )
-        fragment    << preprocessIncludes( fragmentShader );
+        fragment    << fragmentShader;
     
-    cout << vertex.str() << endl;
-    cout << fragment.str() << endl;
+    cout << "Avant: " << endl << fragment.str() << endl;
+    cout << "Apres: " << endl << preprocessVersion( preprocessIncludes( fragment.str() ) ) << endl;
     
-    return gl::GlslProg( vertex.str().c_str(), fragment.str().c_str() );
+    return gl::GlslProg( vertexShader ? preprocessVersion( preprocessIncludes( vertex.str() ) ).c_str() : 0,
+                        fragmentShader ? preprocessVersion( preprocessIncludes( fragment.str() ) ).c_str() : 0 );
 }
 
 
@@ -59,31 +60,51 @@ string GlslProgHelper::preprocessIncludes( const string& source, int level )
 	size_t lineNumber = 1;
 	std::smatch matches;
     
+    string version;
 	string line;
-	while(getline(input,line))
-	{
-		if (std::regex_search(line, matches, re))
-		{
+	while( getline( input, line ) ) {
+        if (std::regex_search( line, matches, re ) ) {
 			string includeFile = matches[1];
 			string includeString;
             
-			try
-			{
+			try {
 				includeString = loadString( app::loadAsset( includeFile ) );
 			}
-			catch ( exception e )
-			{
+			catch ( exception e ) {
                 cout << "GlslProgHelper::preprocessIncludes Error including " << includeFile << endl;
-				//cout << filename <<"(" << lineNumber << ") : fatal error: cannot open include file " << endl;// << e.File();
 			}
 			output << preprocessIncludes(includeString, level + 1) << endl;
 		}
-		else
-		{
+		else {
 			//output << "#line "<< lineNumber << " \"" << filename << "\""  << endl;
 			output <<  line << endl;
 		}
 		++lineNumber;
 	}
 	return output.str();
+}
+
+string GlslProgHelper::preprocessVersion( const string& source )
+{
+	stringstream input;
+	stringstream output;
+	input << source;
+    
+    string version;
+	size_t lineNumber = 1;
+	string line;
+	while( getline( input, line ) )
+	{
+        if( line.find( "#version" ) != string::npos ){
+            version = line;
+        }
+		else {
+			output <<  line << endl;
+		}
+		++lineNumber;
+	}
+    
+	stringstream temp;
+    temp << version << endl << output.str();
+	return temp.str();
 }

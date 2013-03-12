@@ -22,5 +22,6 @@ public:
 protected:
     
     static std::string preprocessIncludes( const std::string& source, int level = 0 );
+    static std::string preprocessVersion( const std::string& source );
     
 };
