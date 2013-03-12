@@ -36,9 +36,6 @@ gl::GlslProg GlslProgHelper::create( const char *vertexShader, const char *fragm
     if( fragmentShader )
         fragment    << fragmentShader;
     
-    cout << "Avant: " << endl << fragment.str() << endl;
-    cout << "Apres: " << endl << preprocessVersion( preprocessIncludes( fragment.str() ) ) << endl;
-    
     return gl::GlslProg( vertexShader ? preprocessVersion( preprocessIncludes( vertex.str() ) ).c_str() : 0,
                         fragmentShader ? preprocessVersion( preprocessIncludes( fragment.str() ) ).c_str() : 0 );
 }
@@ -48,7 +45,7 @@ gl::GlslProg GlslProgHelper::create( const char *vertexShader, const char *fragm
 string GlslProgHelper::preprocessIncludes( const string& source, int level )
 {
 	if(level > 32){
-        cout << "GlslProgHelper::preprocessIncludes Error" << endl;
+        cout << "GlslProgHelper Error max include recursion level" << endl;
         return "";
     }
 
@@ -71,7 +68,7 @@ string GlslProgHelper::preprocessIncludes( const string& source, int level )
 				includeString = loadString( app::loadAsset( includeFile ) );
 			}
 			catch ( exception e ) {
-                cout << "GlslProgHelper::preprocessIncludes Error including " << includeFile << endl;
+                cout << "GlslProgHelper Error including " << includeFile << endl;
 			}
 			output << preprocessIncludes(includeString, level + 1) << endl;
 		}
