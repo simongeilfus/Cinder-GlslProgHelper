@@ -41,6 +41,14 @@ gl::GlslProg GlslProgHelper::create( const char *vertexShader, const char *fragm
 }
 
 
+std::map< std::string, std::string > GlslProgHelper::mVirtualFiles;
+
+void GlslProgHelper::addVirtualFile( const std::string& filename, const std::string& source )
+{
+    mVirtualFiles[ filename ] = source;
+}
+
+
 // From http://www.opengl.org/discussion_boards/showthread.php/169209-include-in-glsl?p=1192415&viewfull=1#post1192415
 string GlslProgHelper::preprocessIncludes( const string& source, int level )
 {
@@ -63,14 +71,25 @@ string GlslProgHelper::preprocessIncludes( const string& source, int level )
         if (std::regex_search( line, matches, re ) ) {
 			string includeFile = matches[1];
 			string includeString;
-            
+
 			try {
-				includeString = loadString( app::loadAsset( includeFile ) );
+                includeString = loadString( app::loadAsset( includeFile ) );
 			}
-			catch ( exception e ) {
-                cout << "GlslProgHelper Error including " << includeFile << endl;
-			}
-			output << preprocessIncludes(includeString, level + 1) << endl;
+			catch ( exception e ) { cout << "GlslProgHelper Error including " << includeFile << endl; }
+            
+            if( includeString.empty() ){
+                try {
+                    includeString = loadString( app::loadResource( includeFile ) );
+                }
+                catch ( exception e ) { cout << "GlslProgHelper Error including " << includeFile << endl; }
+            }
+            
+            if( includeString.empty() && mVirtualFiles.count( includeFile ) ){
+                includeString = mVirtualFiles[ includeFile ];
+            }
+            
+            if( !includeFile.empty() )
+                output << preprocessIncludes(includeString, level + 1) << endl;
 		}
 		else {
 			//output << "#line "<< lineNumber << " \"" << filename << "\""  << endl;
