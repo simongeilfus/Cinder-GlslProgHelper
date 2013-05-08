@@ -92,7 +92,7 @@ string GlslProgHelper::preprocessIncludes( const string& source, int level )
                 output << preprocessIncludes(includeString, level + 1) << endl;
 		}
 		else {
-			//output << "#line "<< lineNumber << " \"" << filename << "\""  << endl;
+			output << "#line "<< lineNumber << endl; //" \"" << filename << "\""  << endl;
 			output <<  line << endl;
 		}
 		++lineNumber;
