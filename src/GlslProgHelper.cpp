@@ -8,17 +8,18 @@
 
 #include "GlslProgHelper.h"
 #include "cinder/Utilities.h"
+#include "cinder/app/App.h"
 
 #include <regex>
 
 using namespace std;
 using namespace ci;
 
-gl::GlslProg GlslProgHelper::create( DataSourceRef vertexShader, DataSourceRef fragmentShader, initializer_list<string> defines )
+gl::GlslProgRef GlslProgHelper::create( DataSourceRef vertexShader, DataSourceRef fragmentShader, initializer_list<string> defines )
 {
     return create( vertexShader ? loadString( vertexShader ).c_str() : 0, fragmentShader ? loadString( fragmentShader ).c_str() : 0, defines );
 }
-gl::GlslProg GlslProgHelper::create( const char *vertexShader, const char *fragmentShader, initializer_list<string> defines )
+gl::GlslProgRef GlslProgHelper::create( const char *vertexShader, const char *fragmentShader, initializer_list<string> defines )
 {
     stringstream vertex;
     stringstream fragment;
@@ -36,7 +37,7 @@ gl::GlslProg GlslProgHelper::create( const char *vertexShader, const char *fragm
     if( fragmentShader )
         fragment    << fragmentShader;
     
-    return gl::GlslProg( vertexShader ? preprocessVersion( preprocessIncludes( vertex.str() ) ).c_str() : 0,
+    return gl::GlslProg::create( vertexShader ? preprocessVersion( preprocessIncludes( vertex.str() ) ).c_str() : 0,
                         fragmentShader ? preprocessVersion( preprocessIncludes( fragment.str() ) ).c_str() : 0 );
 }
 
