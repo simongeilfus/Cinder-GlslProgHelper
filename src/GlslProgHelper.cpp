@@ -15,16 +15,16 @@
 using namespace std;
 using namespace ci;
 
-gl::GlslProgRef GlslProgHelper::create( DataSourceRef vertexShader, DataSourceRef fragmentShader, initializer_list<string> defines )
+gl::GlslProgRef GlslProgHelper::create( DataSourceRef vertexShader, DataSourceRef fragmentShader, vector<string> defines )
 {
     return create( vertexShader ? loadString( vertexShader ).c_str() : 0, fragmentShader ? loadString( fragmentShader ).c_str() : 0, defines );
 }
-gl::GlslProgRef GlslProgHelper::create( const char *vertexShader, const char *fragmentShader, initializer_list<string> defines )
+gl::GlslProgRef GlslProgHelper::create( const char *vertexShader, const char *fragmentShader, vector<string> defines )
 {
     stringstream vertex;
     stringstream fragment;
     
-    for( initializer_list<string>::iterator it = defines.begin(); it != defines.end(); ++it ){
+    for( vector<string>::iterator it = defines.begin(); it != defines.end(); ++it ){
         if( vertexShader )
             vertex      << "#define " << *it << endl;
         if( fragmentShader )
@@ -39,6 +39,40 @@ gl::GlslProgRef GlslProgHelper::create( const char *vertexShader, const char *fr
     
     return gl::GlslProg::create( vertexShader ? preprocessVersion( preprocessIncludes( vertex.str() ) ).c_str() : 0,
                         fragmentShader ? preprocessVersion( preprocessIncludes( fragment.str() ) ).c_str() : 0 );
+}
+
+
+gl::GlslProgRef GlslProgHelper::create( DataSourceRef vertexShader, DataSourceRef fragmentShader, ci::DataSourceRef geometryShader, GLint geometryInputType, GLint geometryOutputType, GLint geometryOutputVertices, std::vector<std::string> defines )
+{
+    return create(  vertexShader ? loadString( vertexShader ).c_str() : 0, fragmentShader ? loadString( fragmentShader ).c_str() : 0, geometryShader ? loadString( geometryShader ).c_str() : 0, geometryInputType, geometryOutputType, geometryOutputVertices, defines );
+}
+gl::GlslProgRef GlslProgHelper::create( const char *vertexShader, const char *fragmentShader, const char *geometryShader, GLint geometryInputType, GLint geometryOutputType, GLint geometryOutputVertices, std::vector<std::string> defines )
+{
+    stringstream vertex;
+    stringstream fragment;
+    stringstream geometry;
+    
+    for( vector<string>::iterator it = defines.begin(); it != defines.end(); ++it ){
+        if( vertexShader )
+            vertex      << "#define " << *it << endl;
+        if( fragmentShader )
+            fragment    << "#define " << *it << endl;
+        if( geometryShader )
+            geometry    << "#define " << *it << endl;
+    }
+    
+    if( vertexShader )
+        vertex      << vertexShader;
+    
+    if( fragmentShader )
+        fragment    << fragmentShader;
+    
+    if( geometryShader )
+        geometry    << geometryShader;
+    
+    return gl::GlslProg::create( vertexShader ? preprocessVersion( preprocessIncludes( vertex.str() ) ).c_str() : 0,
+                                fragmentShader ? preprocessVersion( preprocessIncludes( fragment.str() ) ).c_str() : 0,
+                                geometryShader ? preprocessVersion( preprocessIncludes( geometry.str() ) ).c_str() : 0, geometryInputType, geometryOutputType, geometryOutputVertices );
 }
 
 
